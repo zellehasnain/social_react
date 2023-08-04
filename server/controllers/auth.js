@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import User from "../models/user";
-import { json } from "body-parser";
+import User from "../models/user.js";
 
 /**
  * Register a new user.
@@ -44,9 +43,35 @@ export const register = async (req, res) => {
     const savedUser = await newUser.save();
 
     // Return a success message with the saved user data
-    return res.status(201).json({ message: "User Saved Successfully", user: savedUser });
+    return res
+      .status(201)
+      .json({ message: "User Saved Successfully", user: savedUser });
   } catch (error) {
     // Return an error message if there is an error during the registration process
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// LOGGIN IN
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email });
+    // const isMatch = password == user.password;
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!user) {
+      return res.status(400).json({ message: "User Cannot Be Found" });
+    } else if (!isMatch) {
+      return res.status(400).json({ message: "Invalid Passowrd" });
+    }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    delete user.password;
+    res.status(200).json({
+      message: `User Found Successfully ${user.firstName}`,
+      user,
+      token,
+    });
+  } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };

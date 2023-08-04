@@ -8,6 +8,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/user.js ";
 import { register } from "./controllers/auth.js";
 
 // SETUP CONFIGURATIONS
@@ -24,9 +26,6 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
-// ROUTES CONFIGURATION
-app.post("/auth/register", upload.single("picture"), register);
-
 // FILE STORAGE
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -37,6 +36,13 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+// ROUTES CONFIGURATION
+app.post("/auth/register", upload.single("picture"), register);
+
+//ROUTES
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 
 // MONGOOSE SETUP
 
