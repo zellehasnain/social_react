@@ -42,13 +42,13 @@ export const addRemoveFriend = async (req, res) => {
     await friend.save();
 
     const friends = await Promise.all(
-      user.friends.map((id) => {
-        User.findById(id);
-      })
+      user.friends.map((id) => User.findById(id))
     );
-    const formattedFriends = friends.map(({ password, ...friend }) => {
-      return { ...friend };
-    });
+    const formattedFriends = friends.map(
+      ({ firstName, lastName, Email, picturePath }) => {
+        return { firstName, lastName, Email, picturePath };
+      }
+    );
 
     res.status(200).json(formattedFriends);
   } catch (err) {
